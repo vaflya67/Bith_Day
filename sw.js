@@ -1,4 +1,4 @@
-const CACHE = "birthday-tracker-v6";
+const CACHE = "birthday-tracker-v8";
 
 const ASSETS = ["./", "./index.html", "./styles.css", "./app.js", "./manifest.json", "./icon.svg"];
 

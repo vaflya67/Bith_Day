@@ -24,6 +24,8 @@ let personName = "";
 let personDay = "";
 let personMonth = null;
 let letterCase = "upper";
+let searchQuery = "";
+let returnToCatalog = false;
 
 const $ = (sel) => document.querySelector(sel);
 
@@ -35,6 +37,12 @@ const els = {
   emptyState: $("#emptyState"),
   nextBdayWidget: $("#nextBdayWidget"),
   addView: $("#addView"),
+  catalogView: $("#catalogView"),
+  catalogList: $("#catalogList"),
+  catalogEmpty: $("#catalogEmpty"),
+  catalogCount: $("#catalogCount"),
+  searchPreview: $("#searchPreview"),
+  searchPad: $("#searchPad"),
   namePreview: $("#namePreview"),
   dayDisplay: $("#dayDisplay"),
   letterPad: $("#letterPad"),
@@ -94,6 +102,16 @@ function getDaysSinceBirthday(day, month) {
 
 function formatDate(day, month) {
   return `${day} ${MONTHS[month - 1].toLowerCase()}`;
+}
+
+function normalizeSearch(str) {
+  return str.toLocaleLowerCase("ru");
+}
+
+function matchesSearch(name, query) {
+  const q = query.trim();
+  if (!q) return true;
+  return normalizeSearch(name).includes(normalizeSearch(q));
 }
 
 function countdownText(p) {
@@ -275,6 +293,99 @@ function renderSection(el, label, labelClass, items) {
   el.innerHTML = `<div class="section-label ${labelClass || ""}">${label}</div>${items.map(renderCard).join("")}`;
 }
 
+function updateSearchPreview() {
+  const q = searchQuery.trim();
+  els.searchPreview.textContent = q || "Поиск по имени…";
+  els.searchPreview.classList.toggle("is-empty", !q);
+  $("#btnClearSearch").hidden = !q;
+}
+
+function renderSearchPad() {
+  const keys = [
+    ...RU_LETTERS.map((l) => ({ key: l.toLowerCase(), label: l.toLowerCase() })),
+    { key: "space", label: "пробел", wide: true },
+    { key: "back", label: "⌫" },
+  ];
+  els.searchPad.innerHTML = keys
+    .map(({ key, label, wide }) => {
+      const cls = ["search-key", wide && "search-key--wide"].filter(Boolean).join(" ");
+      return `<button type="button" class="${cls}" data-key="${key}">${label}</button>`;
+    })
+    .join("");
+  els.searchPad.querySelectorAll(".search-key").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.key;
+      if (key === "back") searchQuery = searchQuery.slice(0, -1);
+      else if (key === "space") {
+        if (searchQuery && !searchQuery.endsWith(" ")) searchQuery += " ";
+      } else if (searchQuery.length < 24) searchQuery += key;
+      updateSearchPreview();
+      renderCatalog();
+    });
+  });
+}
+
+function renderCatalogRow(p) {
+  const countdown = countdownText(p);
+  const todayClass = p.daysUntil === 0 ? " catalog-row--today" : "";
+  return `
+    <div class="catalog-row${todayClass}">
+      <span class="catalog-row-emoji">🎂</span>
+      <div class="catalog-row-body">
+        <div class="catalog-row-name">${escapeHtml(p.name)}</div>
+        <div class="catalog-row-date">${formatDate(p.day, p.month)}</div>
+      </div>
+      <span class="catalog-row-countdown">${countdown}</span>
+      <button class="btn-small btn-small--delete catalog-row-del" type="button" data-catalog-del="${p.id}" aria-label="Удалить">×</button>
+    </div>`;
+}
+
+function renderCatalog() {
+  const enriched = people.map(enrichPerson);
+  const filtered = enriched
+    .filter((p) => matchesSearch(p.name, searchQuery))
+    .sort((a, b) => a.name.localeCompare(b.name, "ru"));
+
+  els.catalogCount.textContent = people.length ? `(${people.length})` : "";
+
+  if (!filtered.length) {
+    els.catalogList.innerHTML = "";
+    els.catalogEmpty.hidden = false;
+    els.catalogEmpty.textContent = people.length && searchQuery.trim()
+      ? "Никого не найдено"
+      : "Список пуст — добавь человека";
+    return;
+  }
+
+  els.catalogEmpty.hidden = true;
+  els.catalogList.innerHTML = filtered.map(renderCatalogRow).join("");
+
+  els.catalogList.querySelectorAll("[data-catalog-del]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      people = people.filter((x) => x.id !== btn.dataset.catalogDel);
+      save();
+      render();
+      renderCatalog();
+    });
+  });
+}
+
+function openCatalog() {
+  searchQuery = "";
+  updateSearchPreview();
+  renderSearchPad();
+  renderCatalog();
+  document.body.classList.add("catalog-mode");
+  els.catalogView.hidden = false;
+  window.scrollTo(0, 0);
+}
+
+function closeCatalog() {
+  document.body.classList.remove("catalog-mode");
+  els.catalogView.hidden = true;
+  searchQuery = "";
+}
+
 function render() {
   if (!people.length) {
     els.emptyState.hidden = false;
@@ -416,7 +527,8 @@ function renderMonthGrid() {
   });
 }
 
-function openAddForm() {
+function openAddForm(fromCatalog = false) {
+  returnToCatalog = fromCatalog;
   personName = "";
   personDay = "";
   personMonth = null;
@@ -430,6 +542,7 @@ function openAddForm() {
   renderDayNumpad();
   renderMonthGrid();
   document.body.classList.add("add-mode");
+  if (fromCatalog) els.catalogView.hidden = true;
   els.addView.hidden = false;
   window.scrollTo(0, 0);
 }
@@ -437,6 +550,12 @@ function openAddForm() {
 function closeAddForm() {
   document.body.classList.remove("add-mode");
   els.addView.hidden = true;
+  if (returnToCatalog) {
+    returnToCatalog = false;
+    document.body.classList.add("catalog-mode");
+    els.catalogView.hidden = false;
+    renderCatalog();
+  }
 }
 
 function savePerson() {
@@ -479,10 +598,19 @@ function exportData() {
   URL.revokeObjectURL(url);
 }
 
-$("#btnAddPerson").addEventListener("click", openAddForm);
+$("#btnAddPerson").addEventListener("click", () => openAddForm(false));
 $("#btnCloseAdd").addEventListener("click", closeAddForm);
 $("#btnSave").addEventListener("click", savePerson);
 $("#btnExport").addEventListener("click", exportData);
+$("#btnCatalog").addEventListener("click", openCatalog);
+$("#btnCloseCatalog").addEventListener("click", closeCatalog);
+$("#btnCatalogAdd").addEventListener("click", () => openAddForm(true));
+$("#btnCatalogAddBottom").addEventListener("click", () => openAddForm(true));
+$("#btnClearSearch").addEventListener("click", () => {
+  searchQuery = "";
+  updateSearchPreview();
+  renderCatalog();
+});
 
 document.getElementById("caseToggle").addEventListener("click", (e) => {
   const btn = e.target.closest("[data-case]");

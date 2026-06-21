@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <!-- Pink theme backup: change to styles.pink.css -->
+  <!-- Theme: styles.css (pink+gold). Backups: styles.violet.css | styles.gold.css -->
 </head>
 <body>
   <div class="bg">
@@ -27,7 +27,10 @@
     <header class="header">
       <div class="header-top">
         <h1 class="logo">ДР<span class="logo-icon">🎂</span></h1>
-        <button class="icon-btn" id="btnExport" type="button" title="Экспорт" aria-label="Экспорт">↓</button>
+        <div class="header-actions">
+          <button class="icon-btn" id="btnCatalog" type="button" title="Все люди" aria-label="Все люди">☰</button>
+          <button class="icon-btn" id="btnExport" type="button" title="Экспорт" aria-label="Экспорт">↓</button>
+        </div>
       </div>
       <p class="subtitle">Не забудь поздравить</p>
       <div class="next-bday" id="nextBdayWidget" hidden></div>
@@ -72,6 +75,28 @@
     </div>
 
     <button class="submit-btn" id="btnSave" type="button">Сохранить</button>
+  </div>
+
+  <div class="sub-page" id="catalogView" hidden>
+    <header class="add-header">
+      <button class="icon-btn" id="btnCloseCatalog" type="button" aria-label="Назад">←</button>
+      <h2 class="add-title">Все люди <span class="catalog-count" id="catalogCount"></span></h2>
+      <button class="icon-btn icon-btn--accent" id="btnCatalogAdd" type="button" aria-label="Добавить">+</button>
+    </header>
+
+    <div class="field field--compact">
+      <span class="field-label">Поиск</span>
+      <div class="search-bar">
+        <div class="search-preview is-empty" id="searchPreview">Поиск по имени…</div>
+        <button class="search-clear" id="btnClearSearch" type="button" hidden aria-label="Очистить">×</button>
+      </div>
+      <div class="search-pad" id="searchPad"></div>
+    </div>
+
+    <div class="catalog-list" id="catalogList"></div>
+    <p class="empty-state" id="catalogEmpty" hidden>Никого не найдено</p>
+
+    <button class="add-person-btn" id="btnCatalogAddBottom" type="button">+ Добавить</button>
   </div>
 
   <script src="app.js"></script>

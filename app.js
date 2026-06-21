@@ -33,6 +33,7 @@ const els = {
   soonBlock: $("#soonBlock"),
   laterBlock: $("#laterBlock"),
   emptyState: $("#emptyState"),
+  nextBdayWidget: $("#nextBdayWidget"),
   addView: $("#addView"),
   namePreview: $("#namePreview"),
   dayDisplay: $("#dayDisplay"),
@@ -151,9 +152,9 @@ function buildICS(person) {
     `SUMMARY:${icsEscape(title)}`,
     `DESCRIPTION:${icsEscape(`День рождения — ${person.name}. Не забудь поздравить!`)}`,
     "BEGIN:VALARM",
-    "TRIGGER:-P1D",
+    "TRIGGER:-P7D",
     "ACTION:DISPLAY",
-    `DESCRIPTION:${icsEscape(`Завтра ДР у ${person.name}`)}`,
+    `DESCRIPTION:${icsEscape(`Через неделю ДР у ${person.name}`)}`,
     "END:VALARM",
     "BEGIN:VALARM",
     "TRIGGER:-PT9H",
@@ -213,6 +214,57 @@ function renderCard(p) {
     </div>`;
 }
 
+function renderNextWidget(enriched) {
+  const el = els.nextBdayWidget;
+  if (!el) return;
+
+  if (!people.length) {
+    el.hidden = true;
+    el.innerHTML = "";
+    return;
+  }
+
+  const todayList = enriched
+    .filter((p) => p.daysUntil === 0)
+    .sort((a, b) => a.name.localeCompare(b.name, "ru"));
+
+  if (todayList.length) {
+    const p = todayList[0];
+    const extra = todayList.length > 1 ? ` +${todayList.length - 1}` : "";
+    el.hidden = false;
+    el.className = "next-bday next-bday--today";
+    el.innerHTML = `
+      <span class="next-bday-emoji">🎉</span>
+      <div class="next-bday-body">
+        <span class="next-bday-label">Сегодня ДР</span>
+        <span class="next-bday-name">${escapeHtml(p.name)}${extra ? `<span class="next-bday-extra">${extra}</span>` : ""}</span>
+        <span class="next-bday-date">${formatDate(p.day, p.month)}</span>
+      </div>
+      <span class="next-bday-countdown">Сегодня!</span>`;
+    return;
+  }
+
+  const upcoming = enriched.filter((p) => p.daysUntil > 0).sort((a, b) => a.daysUntil - b.daysUntil);
+  if (!upcoming.length) {
+    el.hidden = true;
+    el.innerHTML = "";
+    return;
+  }
+
+  const p = upcoming[0];
+  const countdown = p.daysUntil === 1 ? "Завтра" : `Через ${p.daysUntil} дн.`;
+  el.hidden = false;
+  el.className = "next-bday";
+  el.innerHTML = `
+    <span class="next-bday-emoji">🎂</span>
+    <div class="next-bday-body">
+      <span class="next-bday-label">Следующий ДР</span>
+      <span class="next-bday-name">${escapeHtml(p.name)}</span>
+      <span class="next-bday-date">${formatDate(p.day, p.month)}</span>
+    </div>
+    <span class="next-bday-countdown">${countdown}</span>`;
+}
+
 function renderSection(el, label, labelClass, items) {
   if (!items.length) {
     el.hidden = true;
@@ -226,6 +278,8 @@ function renderSection(el, label, labelClass, items) {
 function render() {
   if (!people.length) {
     els.emptyState.hidden = false;
+    els.nextBdayWidget.hidden = true;
+    els.nextBdayWidget.innerHTML = "";
     els.todayBlock.hidden = true;
     els.missedBlock.hidden = true;
     els.soonBlock.hidden = true;
@@ -235,6 +289,8 @@ function render() {
 
   els.emptyState.hidden = true;
   const enriched = people.map(enrichPerson);
+
+  renderNextWidget(enriched);
 
   const today = enriched.filter((p) => p.group === "today").sort((a, b) => a.name.localeCompare(b.name, "ru"));
   const missed = enriched.filter((p) => p.group === "missed").sort((a, b) => (a.daysSince || 0) - (b.daysSince || 0));

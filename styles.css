@@ -6,6 +6,8 @@
   padding: 0;
 }
 
+/* Theme: GOLD (active). Pink backup → styles.pink.css */
+
 :root {
   --bg: #0a0812;
   --surface: rgba(255, 255, 255, 0.05);
@@ -13,11 +15,15 @@
   --border: rgba(255, 255, 255, 0.1);
   --text: #f5f0fa;
   --muted: rgba(245, 240, 250, 0.5);
+  --accent: #fbbf24;
+  --accent-dark: #d97706;
+  --accent-light: #fde68a;
   --purple: #a855f7;
   --gold: #fbbf24;
   --pink: #f472b6;
   --green: #34d399;
   --red: #f87171;
+  --glow-accent: rgba(251, 191, 36, 0.4);
   --glow-gold: rgba(251, 191, 36, 0.35);
   --glow-pink: rgba(244, 114, 182, 0.3);
   --radius: 14px;
@@ -41,7 +47,7 @@ body {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse 70% 50% at 50% -20%, #1a1028 0%, var(--bg) 65%);
+  background: radial-gradient(ellipse 70% 50% at 50% -20%, #1a1408 0%, var(--bg) 65%);
 }
 
 .blob {
@@ -54,7 +60,7 @@ body {
 .blob-1 {
   width: 340px;
   height: 340px;
-  background: var(--pink);
+  background: var(--accent);
   top: -80px;
   right: -60px;
 }
@@ -62,10 +68,10 @@ body {
 .blob-2 {
   width: 280px;
   height: 280px;
-  background: var(--gold);
+  background: var(--accent-light);
   bottom: 15%;
   left: -70px;
-  opacity: 0.25;
+  opacity: 0.2;
 }
 
 .app,
@@ -106,8 +112,85 @@ body.add-mode .app {
 .subtitle {
   font-size: 0.9rem;
   color: var(--muted);
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.75rem;
   font-weight: 300;
+}
+
+.next-bday {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1.1rem;
+  margin-bottom: 1.25rem;
+  border-radius: var(--radius);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  background: rgba(251, 191, 36, 0.08);
+  box-shadow: 0 0 32px rgba(251, 191, 36, 0.12);
+}
+
+.next-bday--today {
+  border-color: rgba(251, 191, 36, 0.55);
+  background: rgba(251, 191, 36, 0.12);
+  box-shadow: 0 0 36px var(--glow-accent);
+}
+
+.next-bday-emoji {
+  font-size: 2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.next-bday-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.next-bday-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.next-bday--today .next-bday-label {
+  color: var(--accent-light);
+}
+
+.next-bday-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.next-bday-extra {
+  margin-left: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent-light);
+}
+
+.next-bday-date {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.next-bday-countdown {
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent-light);
+  text-align: right;
+  line-height: 1.3;
+}
+
+.next-bday--today .next-bday-countdown {
+  color: var(--accent);
+  font-size: 1rem;
 }
 
 .icon-btn {
@@ -135,7 +218,7 @@ body.add-mode .app {
 }
 
 .section-label--today {
-  color: var(--gold);
+  color: var(--accent-light);
 }
 
 .section-label--missed {
@@ -154,9 +237,9 @@ body.add-mode .app {
 }
 
 .person-card--today {
-  border-color: rgba(251, 191, 36, 0.5);
-  background: rgba(251, 191, 36, 0.08);
-  box-shadow: 0 0 24px var(--glow-gold);
+  border-color: rgba(251, 191, 36, 0.55);
+  background: rgba(251, 191, 36, 0.1);
+  box-shadow: 0 0 28px var(--glow-accent);
 }
 
 .person-card--missed {
@@ -189,13 +272,13 @@ body.add-mode .app {
 .person-countdown {
   font-size: 0.78rem;
   font-weight: 600;
-  color: var(--pink);
+  color: var(--accent-light);
   flex-shrink: 0;
   text-align: right;
 }
 
 .person-card--today .person-countdown {
-  color: var(--gold);
+  color: var(--accent);
 }
 
 .person-actions {
@@ -271,10 +354,10 @@ body.add-mode .app {
   width: 100%;
   margin-top: 1.25rem;
   padding: 1rem;
-  border: 1px dashed rgba(244, 114, 182, 0.45);
+  border: 1px dashed rgba(251, 191, 36, 0.5);
   border-radius: var(--radius);
-  background: rgba(244, 114, 182, 0.06);
-  color: var(--pink);
+  background: rgba(251, 191, 36, 0.06);
+  color: var(--accent);
   font-family: var(--font);
   font-size: 1rem;
   font-weight: 600;
@@ -329,7 +412,7 @@ body.add-mode .app {
 }
 
 .name-preview {
-  color: var(--pink);
+  color: var(--accent);
 }
 
 .name-preview.is-empty,
@@ -364,9 +447,9 @@ body.add-mode .app {
 }
 
 .case-btn--active {
-  border-color: var(--purple);
+  border-color: var(--accent);
   color: var(--text);
-  background: rgba(168, 85, 247, 0.15);
+  background: rgba(251, 191, 36, 0.15);
 }
 
 .letter-pad {
@@ -425,9 +508,9 @@ body.add-mode .app {
 }
 
 .month-btn.selected {
-  border-color: var(--gold);
-  background: rgba(251, 191, 36, 0.12);
-  color: var(--gold);
+  border-color: var(--accent);
+  background: rgba(251, 191, 36, 0.15);
+  color: var(--accent-light);
 }
 
 .submit-btn {
@@ -436,13 +519,13 @@ body.add-mode .app {
   margin-top: 0.5rem;
   border: none;
   border-radius: var(--radius);
-  background: linear-gradient(135deg, var(--pink), #db2777);
-  color: #fff;
+  background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+  color: #1a1000;
   font-family: var(--font);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 24px var(--glow-pink);
+  box-shadow: 0 4px 24px var(--glow-accent);
   touch-action: manipulation;
 }
 

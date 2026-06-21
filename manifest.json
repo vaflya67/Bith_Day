@@ -1,0 +1,19 @@
+{
+  "name": "ДР · не забудь",
+  "short_name": "ДР",
+  "description": "Трекер дней рождения друзей и близких",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0812",
+  "theme_color": "#0a0812",
+  "orientation": "portrait",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

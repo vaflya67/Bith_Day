@@ -181,22 +181,31 @@ function openCalendarReminder(person) {
 function renderCard(p) {
   const year = new Date().getFullYear();
   const done = p.congratulatedYear === year && (p.daysUntil === 0 || p.group === "missed");
+  const inCal = !!p.calendarAdded;
   const cardClass =
     p.group === "today" ? "person-card person-card--today" :
     p.group === "missed" ? "person-card person-card--missed" : "person-card";
 
   const showDone = p.daysUntil === 0 || p.group === "missed";
 
+  const calBtn = inCal
+    ? `<button class="btn-small btn-small--cal btn-small--cal-done" type="button" data-cal="${p.id}" title="Уже в календаре. Нажми, чтобы открыть снова">📅 ✓</button>`
+    : `<button class="btn-small btn-small--cal" type="button" data-cal="${p.id}">📅 В календарь</button>`;
+
   return `
     <div class="${cardClass}">
       <span class="person-emoji">🎂</span>
       <div class="person-body">
-        <div class="person-name">${escapeHtml(p.name)}</div>
+        <div class="person-name">
+          ${escapeHtml(p.name)}
+          ${inCal ? '<span class="cal-badge">в календаре</span>' : ""}
+        </div>
         <div class="person-date">${formatDate(p.day, p.month)}</div>
       </div>
       <div class="person-actions">
         <span class="person-countdown">${countdownText(p)}</span>
-        <button class="btn-small btn-small--cal" type="button" data-cal="${p.id}">📅 Напоминание</button>
+        ${calBtn}
+        ${inCal ? `<button class="btn-small btn-small--unmark" type="button" data-uncal="${p.id}" title="Снять отметку">↩</button>` : ""}
         ${showDone && !done ? `<button class="btn-small btn-small--done" type="button" data-done="${p.id}">Поздравил ✓</button>` : ""}
         ${done ? `<span class="btn-small btn-small--done" style="border:none;background:none">✓</span>` : ""}
         <button class="btn-small btn-small--delete" type="button" data-del="${p.id}" aria-label="Удалить">×</button>
@@ -259,7 +268,24 @@ function render() {
   document.querySelectorAll("[data-cal]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const p = people.find((x) => x.id === btn.dataset.cal);
-      if (p) openCalendarReminder(p);
+      if (!p) return;
+      openCalendarReminder(p);
+      if (!p.calendarAdded) {
+        p.calendarAdded = true;
+        save();
+        render();
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-uncal]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const p = people.find((x) => x.id === btn.dataset.uncal);
+      if (p) {
+        p.calendarAdded = false;
+        save();
+        render();
+      }
     });
   });
 }

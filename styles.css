@@ -229,6 +229,31 @@ body.add-mode .app {
   color: var(--gold);
 }
 
+.btn-small--cal-done {
+  border-color: rgba(52, 211, 153, 0.5);
+  color: var(--green);
+}
+
+.btn-small--unmark {
+  color: var(--muted);
+  font-size: 0.75rem;
+  padding: 0.35rem 0.45rem;
+}
+
+.cal-badge {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.12rem 0.4rem;
+  border-radius: 6px;
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--green);
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}
+
 .btn-small--delete {
   color: var(--muted);
   font-size: 0.85rem;
